@@ -5,4 +5,4 @@
 ##################################################################
 
 CFLAGS += -DBOARD_5K_W20
-BOARD_NUM_USB_PORTS=1
+BOARD_NUM_USB_PORTS=0
