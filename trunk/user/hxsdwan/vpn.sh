@@ -15,7 +15,6 @@ sleep 3
 #清除vpn的虚拟网卡
 ifconfig vnt-tun down && ip tuntap del vnt-tun mode tun
 
-if [ "${vpn}" == "" ] ; then
 vpn="/usr/bin/vpn"
 
 test ! -x "${vpn}" && chmod +x "${vpn}"
@@ -35,21 +34,19 @@ test -n "`pidof vpn`" && killall vpn
 if [ -f "/etc/storage/post_wan_script.sh" ] ; then
 boot="/etc/storage/post_wan_script.sh"
 
-if [ -z "`cat $boot | grep -o '\-k'`" ] ; then
+if [ -z "`cat $boot | grep -o '\串码'`" ] ; then
 cat <<'EOF10'>> "$boot"
 sleep 20 && /usr/bin/vpn.sh &
 :<<'________'
 VPN异地组网配置区
-串码 yhtfhgdf #组网串码 所有同一组网必须同一名 如：abcd
-#以下改IP参数，虚似IP最后一位也要对应改，和路由的名要一起改
-#如改本地192.168.30.1,路由的名就改30 本机虚拟IP改10.26.0.30
-#远端改(另一个路由)192.168.30.0/24,10.26.0.30
-#服务器
-路由的名 22     #路由的名字，不能和组网同名 如：-d  1 2 3
-对网路由IP 192.168.12.0/24,10.26.0.12   # 对端路由IP,对端路由的虚拟IP 例如:192.168.1.0/24,10.26.0.11
-本机IP 192.168.33.0/24 #   本路由IP 如:192.168.1.0/24
-本机虚拟IP 10.26.0.33 #   本路由的虚拟IP 如:10.26.0.11
-
+串码 abcde #组网串码 所有同一组网必须同一名 如：abcd
+#以下改IP参数，虚似ip最后一位也要对应改，另一台也要改对网路由ip，虚拟ip
+#如改本地192.168.20.1,路由名就改20 本虚拟ip改10.26.0.20
+#远端改(在另一个路由改)ip 192.168.21.0/24,10.26.0.21
+路由的名 20     #路由名字，不能和组网同名 如：20
+对网路由IP 192.168.21.0/24,10.26.0.21   # 对端路由ip,对端路由的虚拟ip 192.168.21.0/24,10.26.0.21
+本机IP 192.168.20.0/24  #本路由ip 如：192.168.1.0/24
+本机虚拟IP 10.26.0.20  #本路由的虚拟ip 如： 10.26.0.11
 ________
 EOF10
 
@@ -72,6 +69,7 @@ vpn_dirname=$(dirname ${vpn})
 cd $vpn_dirname && ./vpn -k $port $white -d $white_token -i $gateway -o $netmask --ip $finger  &
 
 sleep 3
+
 if [ ! -z "`pidof vpn`" ] ; then
 logger -t "异地组网" "启动成功"
 #放行vnt防火墙
