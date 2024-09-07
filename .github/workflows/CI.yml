@@ -1,4 +1,4 @@
-name: 5K-W20
+name: OYE-001
 on: 
   release:
     types: [published]
@@ -37,7 +37,7 @@ jobs:
     
     - name: Build Firmware
       env:
-        TNAME: 5K-W20
+        TNAME: OYE-001
       run: |
         cd /opt/padavan/trunk
         if [ ! -f configs/templates/$TNAME.config ] ; then
