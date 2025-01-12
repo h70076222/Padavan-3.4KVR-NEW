@@ -246,6 +246,9 @@ endif
 ifneq ($(CONFIG_FIRMWARE_INCLUDE_WIREGUARD),y)
 	rm -f $(INSTALLDIR)/www/Advanced_wireguard.asp
 endif
+ifneq ($(CONFIG_FIRMWARE_INCLUDE_HXSDWAN),y)
+	rm -f $(INSTALLDIR)/www/Advanced_hxsdwan.asp
+endif
 ifneq ($(CONFIG_FIRMWARE_INCLUDE_ALDRIVER),y)
 	rm -f $(INSTALLDIR)/www/Advanced_aliyundrive.asp
 endif
