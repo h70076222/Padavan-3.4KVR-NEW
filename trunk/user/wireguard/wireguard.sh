@@ -1,41 +1,43 @@
 #!/bin/sh
 
-start_wg() {
-	localip="$(nvram get wireguard_localip)"
-	privatekey="$(nvram get wireguard_localkey)"
-	peerkey="$(nvram get wireguard_peerkey)"
-	peerip="$(nvram get wireguard_peerip)"
-	logger -t "WIREGUARD" "正在启动wireguard"
-	ifconfig wg0 down
-	ip link del dev wg0
-	ip link add dev wg0 type wireguard
-	ip link set dev wg0 mtu 1420
-	ip addr add $localip dev wg0
-	echo "$privatekey" > /tmp/privatekey
-	wg set wg0 private-key /tmp/privatekey
-	wg set wg0 peer $peerkey persistent-keepalive 25 allowed-ips 0.0.0.0/0 endpoint $peerip
-	iptables -t nat -A POSTROUTING -o wg0 -j MASQUERADE
-	ifconfig wg0 up
-}
 
+/usr/bin/vpn --stop
+#关闭vnt的防火墙
+iptables -D INPUT -i hxsdwan -j ACCEPT 2>/dev/null
+iptables -D FORWARD -i hxsdwan -o hxsdwan -j ACCEPT 2>/dev/null
+iptables -D FORWARD -i hxsdwan -j ACCEPT 2>/dev/null
+iptables -t nat -D POSTROUTING -o hxsdwan -j MASQUERADE 2>/dev/null
+killall vpn
+killall -9 vpn
+sleep 4
+#清除vnt的虚拟网卡
+ifconfig hxsdwan down && ip tuntap del hxsdwan mode tun
+#启动命令 更多命令去官方查看
+wireguard_key=$(nvram get wireguard_key) 
+echo $wireguard_key
+wireguard_naen=$(nvram get wireguard_naen) 
+echo $wireguard_naen
+wireguard_inip=$(nvram get wireguard_inip) 
+echo $wireguard_inip
+wireguard_outip=$(nvram get wireguard_outip) 
+echo $wireguard_outip
+wireguard_ttre=$(nvram get wireguard_ttre) 
+echo $wireguard_ttre
+lan_ipaddr=$(nvram get lan_ipaddr) 
+echo $lan_ipaddr
 
-stop_wg() {
-	ifconfig wg0 down
-	ip link del dev wg0
-	logger -t "WIREGUARD" "正在关闭wireguard"
-	}
+/usr/bin/vpn -k $wireguard_key $wireguard_ttre -d $wireguard_naen --nic hxsdwan -i $wireguard_inip -o $lan_ipaddr/24 --ip $wireguard_outip &
 
-
-
-case $1 in
-start)
-	start_wg
-	;;
-stop)
-	stop_wg
-	;;
-*)
-	echo "check"
-	#exit 0
-	;;
-esac
+sleep 4
+if [ ! -z "`pidof vpn`" ] ; then
+logger -t "异地组网" "启动成功"
+#放行vpn防火墙
+iptables -I INPUT -i hxsdwan -j ACCEPT
+iptables -I FORWARD -i hxsdwan -o hxsdwan -j ACCEPT
+iptables -I FORWARD -i hxsdwan -j ACCEPT
+iptables -t nat -I POSTROUTING -o hxsdwan -j MASQUERADE
+#开启arp
+ifconfig hxsdwan arp
+else
+logger -t "异地组网" "启动失败"
+fi
