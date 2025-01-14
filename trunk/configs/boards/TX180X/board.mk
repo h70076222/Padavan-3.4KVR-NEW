@@ -4,5 +4,5 @@
 # EA7500 # EA7500   # MT7621  #
 ##################################################################
 
-CFLAGS += -DBOARD_EA7500
-BOARD_NUM_USB_PORTS=2
+CFLAGS += -DBOARD_TX180X
+BOARD_NUM_USB_PORTS=0
