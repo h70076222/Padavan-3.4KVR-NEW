@@ -4,5 +4,5 @@
 # EA7500 # EA7500   # MT7621  #
 ##################################################################
 
-CFLAGS += -DBOARD_TX180X
+CFLAGS += -DBOARD_TX180X -DBOARD_MT7915_DBDC
 BOARD_NUM_USB_PORTS=0
