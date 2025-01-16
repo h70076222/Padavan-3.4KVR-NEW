@@ -1,4 +1,4 @@
-* NX18N */
+/* K2P */
 
 #define BOARD_PID		"NX18N"
 #define BOARD_NAME		"NX18N"
