@@ -4097,7 +4097,6 @@ static void do_html_post_and_get(char *url, FILE *stream, int len, char *boundar
 	//websScan(post_buf_backup);
 	init_cgi(post_buf);
 }
-#endif
 #if defined(APP_WIREGUARD)
 		system("/usr/bin/wireguard.sh restart &");
 #endif
@@ -4297,7 +4296,6 @@ do_syslog_file(const char *url, FILE *stream)
 	dump_file(stream, "/tmp/syslog.log");
 	fputs("\r\n", stream); /* terminator */
 }
-
 #if defined(APP_OPENVPN)
 static void
 do_export_ovpn_client(const char *url, FILE *stream)
@@ -4339,6 +4337,21 @@ do_scutclient_log_file(const char *url, FILE *stream)
 static char scutclient_log_txt[] =
 "Content-Disposition: attachment;\r\n"
 "filename=scutclient.log"
+;
+
+#endif
+
+#if defined (APP_WIREGUARD)
+static void
+do_vpn_log_file(const char *url, FILE *stream)
+{
+	dump_file(stream, "/tmp/vpn.log");
+	fputs("\r\n", stream);
+}
+
+static char vpn_log_txt[] =
+"Content-Disposition: attachment;\r\n"
+"filename=vpn.log"
 ;
 
 #endif
@@ -4413,6 +4426,9 @@ struct mime_handler mime_handlers[] = {
 #endif
 #if defined(APP_SCUT)
 	{ "scutclient.log", "application/force-download", scutclient_log_txt, NULL, do_scutclient_log_file, 1 },
+#endif
+#if defined(APP_WIREGUARD)
+	{ "vpn.log", "application/force-download", vpn_log_txt, NULL, do_vpn_log_file, 1 },
 #endif
 #if defined(APP_MENTOHUST)
 	{ "mentohust.log", "application/force-download", mentohust_log_txt, NULL, do_mentohust_log_file, 1 },
@@ -4716,6 +4732,9 @@ struct ej_handler ej_handlers[] =
 	{ "scutclient_action", scutclient_action_hook},
 	{ "scutclient_status", scutclient_status_hook},
 	{ "scutclient_version", scutclient_version_hook},
+#endif
+#if defined (APP_WIREGUARD)
+	{ "wireguard_status", wireguard_status_hook},
 #endif
 #if defined (APP_MENTOHUST)
 	{ "mentohust_action", mentohust_action_hook},
