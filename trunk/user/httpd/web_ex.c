@@ -4733,9 +4733,6 @@ struct ej_handler ej_handlers[] =
 	{ "scutclient_status", scutclient_status_hook},
 	{ "scutclient_version", scutclient_version_hook},
 #endif
-#if defined (APP_WIREGUARD)
-	{ "wireguard_status", wireguard_status_hook},
-#endif
 #if defined (APP_MENTOHUST)
 	{ "mentohust_action", mentohust_action_hook},
 	{ "mentohust_status", mentohust_status_hook},
