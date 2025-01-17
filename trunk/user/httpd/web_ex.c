@@ -4064,6 +4064,40 @@ do_uncgi_query(const char *query)
 	if (strlen(post_buf) > 0)
 		init_cgi(post_buf);
 }
+#if defined(APP_SHADOWSOCKS)
+static void do_html_post_and_get(char *url, FILE *stream, int len, char *boundary){
+	char *query = NULL;
+
+	init_cgi(NULL);
+
+	memset(post_buf, 0, sizeof(post_buf));
+	memset(post_buf_backup, 0, sizeof(post_buf));
+	memset(post_json_buf, 0, sizeof(post_json_buf));
+
+	if (fgets(post_buf, MIN(len+1, sizeof(post_buf)), stream)){
+		len -= strlen(post_buf);
+
+		while (len--)
+			(void)fgetc(stream);
+	}
+	sprintf(post_json_buf, "%s", post_buf);
+
+	query = url;
+	query = strsep(&query, "?");
+
+	if (query && strlen(query) > 0){
+		if (strlen(post_buf) > 0)
+			sprintf(post_buf_backup, "?%s&%s", post_buf, query);
+		else
+			sprintf(post_buf_backup, "?%s", query);
+		sprintf(post_buf, "%s", post_buf_backup+1);
+	}
+	else if (strlen(post_buf) > 0)
+		sprintf(post_buf_backup, "?%s", post_buf);
+	//websScan(post_buf_backup);
+	init_cgi(post_buf);
+}
+#endif
 #if defined(APP_WIREGUARD)
 		system("/usr/bin/wireguard.sh restart &");
 #endif
@@ -4121,40 +4155,6 @@ do_uncgi_query(const char *query)
 	}
 	else if (!strcmp(value, " Restartcloudflared "))
 	{
-#endif
-#if defined(APP_SHADOWSOCKS)
-static void do_html_post_and_get(char *url, FILE *stream, int len, char *boundary){
-	char *query = NULL;
-
-	init_cgi(NULL);
-
-	memset(post_buf, 0, sizeof(post_buf));
-	memset(post_buf_backup, 0, sizeof(post_buf));
-	memset(post_json_buf, 0, sizeof(post_json_buf));
-
-	if (fgets(post_buf, MIN(len+1, sizeof(post_buf)), stream)){
-		len -= strlen(post_buf);
-
-		while (len--)
-			(void)fgetc(stream);
-	}
-	sprintf(post_json_buf, "%s", post_buf);
-
-	query = url;
-	query = strsep(&query, "?");
-
-	if (query && strlen(query) > 0){
-		if (strlen(post_buf) > 0)
-			sprintf(post_buf_backup, "?%s&%s", post_buf, query);
-		else
-			sprintf(post_buf_backup, "?%s", query);
-		sprintf(post_buf, "%s", post_buf_backup+1);
-	}
-	else if (strlen(post_buf) > 0)
-		sprintf(post_buf_backup, "?%s", post_buf);
-	//websScan(post_buf_backup);
-	init_cgi(post_buf);
-}
 #endif
 static void
 do_html_apply_post(const char *url, FILE *stream, int clen, char *boundary)
