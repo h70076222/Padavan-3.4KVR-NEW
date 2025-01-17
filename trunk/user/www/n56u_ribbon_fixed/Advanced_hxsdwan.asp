@@ -17,36 +17,75 @@
 <script type="text/javascript" src="/bootstrap/js/engage.itoggle.min.js"></script>
 <script type="text/javascript" src="/state.js"></script>
 <script type="text/javascript" src="/general.js"></script>
-<script type="text/javascript" src="/itoggle.js"></script>
 <script type="text/javascript" src="/client_function.js"></script>
+<script type="text/javascript" src="/itoggle.js"></script>
 <script type="text/javascript" src="/popup.js"></script>
 <script type="text/javascript" src="/help.js"></script>
-<script type="text/javascript" src="/help_b.js"></script>
 <script>
 var $j = jQuery.noConflict();
-
+<% login_state_hook(); %>
 $j(document).ready(function() {
 	
 	init_itoggle('wireguard_enable');
+	init_itoggle('hxsdwan_log');
+	init_itoggle('hxsdwan_proxy');
+	init_itoggle('hxsdwan_wg');
+	init_itoggle('hxsdwan_first');
+	init_itoggle('hxsdwan_finger');
+	init_itoggle('hxsdwan_serverw');
+	$j("#tab_hxsdwan_cfg, #tab_hxsdwan_pri, #tab_hxsdwan_sta, #tab_hxsdwan_log, #tab_hxsdwan_help").click(
+	function () {
+		var newHash = $j(this).attr('href').toLowerCase();
+		showTab(newHash);
+		return false;
+	});
 
 });
 
+
 </script>
 <script>
-<% login_state_hook(); %>
-
 
 function initial(){
 	show_banner(2);
 	show_menu(5,17,0);
 	showmenu();
 	show_footer();
+	fill_status(hxsdwan_status());
+	change_wireguard_enable(1);
+	change_hxsdwan_model(1);
+	if (!login_safe())
+        		textarea_scripts_enabled(0);
 }
 
 function showmenu(){
-	showhide_div('allink', found_app_aliddns());
 	showhide_div('dtolink', found_app_ddnsto());
 	showhide_div('zelink', found_app_zerotier());
+}
+function fill_status(status_code){
+	var stext = "Unknown";
+	if (status_code == 0)
+		stext = "<#Stopped#>";
+	else if (status_code == 1)
+		stext = "<#Running#>";
+	$("hxsdwan_status").innerHTML = '<span class="label label-' + (status_code != 0 ? 'success' : 'warning') + '">' + stext + '</span>';
+}
+
+var arrHashes = ["cfg","pri","sta","log","help"];
+function showTab(curHash) {
+	var obj = $('tab_hxsdwan_' + curHash.slice(1));
+	if (obj == null || obj.style.display == 'none')
+	curHash = '#cfg';
+	for (var i = 0; i < arrHashes.length; i++) {
+		if (curHash == ('#' + arrHashes[i])) {
+			$j('#tab_hxsdwan_' + arrHashes[i]).parents('li').addClass('active');
+			$j('#wnd_hxsdwan_' + arrHashes[i]).show();
+		} else {
+			$j('#wnd_hxsdwan_' + arrHashes[i]).hide();
+			$j('#tab_hxsdwan_' + arrHashes[i]).parents('li').removeClass('active');
+			}
+		}
+	window.location.hash = curHash;
 }
 
 function applyRule(){
@@ -62,14 +101,76 @@ function applyRule(){
 function done_validating(action){
 	refreshpage();
 }
-function fill_status(status_code){
-	var stext = "Unknown";
-	if (status_code == 0)
-		stext = "<#Stopped#>";
-	else if (status_code == 1)
-		stext = "<#Running#>";
-	$("wireguard_enable").innerHTML = '<span class="label label-' + (status_code != 0 ? 'success' : 'warning') + '">' + stext + '</span>';
+
+function textarea_scripts_enabled(v){
+    	inputCtrl(document.form['scripts.wireguard.conf'], v);
 }
+
+function button_hxsdwan_info(){
+	var $j = jQuery.noConflict();
+	$j('#btn_info').attr('disabled', 'disabled');
+	$j.post('/apply.cgi', {
+		'action_mode': '/usr/bin/wireguard.sh vpninfo &',
+		'next_host': 'Advanced_hxsdwan.asp#sta'
+	}).always(function() {
+		setTimeout(function() {
+			location.reload(); 
+		}, 3000);
+	});
+}
+
+function button_hxsdwan_all(){
+	var $j = jQuery.noConflict();
+	$j('#btn_all').attr('disabled', 'disabled');
+	$j.post('/apply.cgi', {
+		'action_mode': '/usr/bin/wireguard.sh vpnall &',
+		'next_host': 'Advanced_hxsdwan.asp#sta'
+	}).always(function() {
+		setTimeout(function() {
+			location.reload(); 
+		}, 3000);
+	});
+}
+
+function button_hxsdwan_list(){
+	var $j = jQuery.noConflict();
+	$j('#btn_list').attr('disabled', 'disabled');
+	$j.post('/apply.cgi', {
+		'action_mode': ' CMDvpnlist ',
+		'next_host': 'Advanced_hxsdwan.asp#sta'
+	}).always(function() {
+		setTimeout(function() {
+			location.reload(); 
+		}, 3000);
+	});
+}
+
+function button_hxsdwan_route(){
+	var $j = jQuery.noConflict();
+	$j('#btn_route').attr('disabled', 'disabled');
+	$j.post('/apply.cgi', {
+		'action_mode': ' CMDvpnroute ',
+		'next_host': 'Advanced_hxsdwan.asp#sta'
+	}).always(function() {
+		setTimeout(function() {
+			location.reload(); 
+		}, 3000);
+	});
+}
+
+function button_hxsdwan_status() {
+	var $j = jQuery.noConflict();
+	$j('#btn_status').attr('disabled', 'disabled');
+	$j.post('/apply.cgi', {
+		'action_mode': ' CMDvpnstatus ',
+		'next_host': 'Advanced_hxsdwan.asp#sta'
+	}).always(function() {
+		setTimeout(function() {
+			location.reload(); 
+		}, 3000);
+	});
+}
+
 </script>
 </head>
 
@@ -124,17 +225,16 @@ function fill_status(status_code){
 							<div class="round_bottom">
 							<div>
 							    <ul class="nav nav-tabs" style="margin-bottom: 10px;">
-								<li id="allink" style="display:none">
-								    <a href="Advanced_aliddns.asp"><#menu5_23_1#></a>
-								</li>
-								<li id="dtolink" style="display:none">
-								    <a href="Advanced_ddnsto.asp"><#menu5_34_1#></a>
+								<li id="ddlink" style="display:none">
+								<a href="Advanced_ddnsto.asp"><#menu5_32_1#></a>
 								</li>
 								<li id="zelink" style="display:none">
 								    <a href="Advanced_vpnkey.asp"><#menu5_32_1#></a>
 								</li>
 								<li class="active">
 								    <a href="Advanced_hxsdwan.asp"><#menu5_35_1#></a>
+								</li>
+								   <li><a id="tab_hxsdwan_sta" href="#sta">运行状态</a></li>
 								</li>
 							    </ul>
 							</div>
@@ -144,9 +244,6 @@ function fill_status(status_code){
 									<p>异地组网 是一个易于配置、快速且安全的开源VPN<br>
 									</p>
 									</div>
-
-
-
 									<table width="100%" align="center" cellpadding="4" cellspacing="0" class="table">
 
 
@@ -211,20 +308,44 @@ function fill_status(status_code){
 											</td>
 										</tr>
 </table>
-
-										
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	</form>
-
-	<div id="footer"></div>
+</table>
 </div>
+	<!-- 状态 -->
+	<div id="wnd_hxsdwan_sta" style="display:none">
+	<table width="100%" cellpadding="4" cellspacing="0" class="table">
+	<tr>
+		<td colspan="3" style="border-top: 0 none; padding-bottom: 0px;">
+			<textarea rows="21" class="span12" style="height:377px; font-family:'Courier New', Courier, mono; font-size:13px;" readonly="readonly" wrap="off" id="textarea"><% nvram_dump("vpn_cmd.log",""); %></textarea>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="5" style="border-top: 0 none; text-align: center;">
+			<!-- 按钮并排显示 -->
+			<input class="btn btn-success" id="btn_info" style="width:100px; margin-right: 10px;" type="button" name="hxsdwan_info" value="本机设备信息" onclick="button_hxsdwan_info()" />
+			<input class="btn btn-success" id="btn_all" style="width:100px; margin-right: 10px;" type="button" name="hxsdwan_all" value="所有设备信息" onclick="button_hxsdwan_all()" />
+			<input class="btn btn-success" id="btn_list" style="width:100px; margin-right: 10px;" type="button" name="hxsdwan_list" value="所有设备列表" onclick="button_hxsdwan_list()" />
+			<input class="btn btn-success" id="btn_route" style="width:100px; margin-right: 10px;" type="button" name="hxsdwan_route" value="路由转发信息" onclick="button_hxsdwan_route()" />
+			<input class="btn btn-success" id="btn_status" style="width:100px; margin-right: 10px;" type="button" name="hxsdwan_status" value="运行状态信息" onclick="button_hxsdwan_status()" />
+		</td>
+	</tr>
+	<tr>
+		<td colspan="5" style="border-top: 0 none; text-align: center; padding-top: 5px;">
+			<span style="color:#888;">🔄 点击上方按钮刷新查看</span>
+		</td>
+	        </td>
+	</tr>
+	</table>
+	</table>
+	</div>
+	
+	</div>
+	</div>
+	</div>
+	</div>
+	</div>
+	</form>
+	<div id="footer"></div>
+	</div>
 </body>
+
 </html>
