@@ -29,7 +29,8 @@ $j(document).ready(function() {
 
 	init_itoggle('zerotier_enable');
 	init_itoggle('zerotier_nat');
-	init_itoggle('zerotiermoon_enable');
+	init_itoggle('afycx_enable');
+	init_itoggle('gecoac_enable');
 
 });
 
@@ -267,13 +268,61 @@ function showMRULESList(){
 								
 										
 <tr>
-										<tr>
-											<th>商家官网</th>
-											<td>
-				<input type="button" class="btn btn-success" value="商家官网" onclick="window.open('http://hon2233768.net3v.club')" size="0">
-				<br>点击跳转到商家官网管理平台，了解更多的产品信息
+										</tr>
+											<tr>
+											<th width="30%" style="border-top: 0 none;">启用后台服务</th>
+											<td style="border-top: 0 none;">
+													<div class="main_itoggle">
+													<div id="zerotier_enable_on_of">
+														<input type="checkbox" id="zerotier_enable_fake" <% nvram_match_x("", "zerotier_enable", "1", "value=1 checked"); %><% nvram_match_x("", "zerotier_enable", "0", "value=0"); %>  />
+													</div>
+												</div>
+												<div style="position: absolute; margin-left: -10000px;">
+													<input type="radio" value="1" name="zerotier_enable" id="zerotier_enable_1" class="input" value="1" <% nvram_match_x("", "zerotier_enable", "1", "checked"); %> /><#checkbox_Yes#>
+													<input type="radio" value="0" name="zerotier_enable" id="zerotier_enable_0" class="input" value="0" <% nvram_match_x("", "zerotier_enable", "0", "checked"); %> /><#checkbox_No#>
+												</div>
+											</td>
+											<tr>
+											<th width="30%" style="border-top: 0 none;">启用巴法云服务</th>
+											<td style="border-top: 0 none;">
+													<div class="main_itoggle">
+													<div id="afycx_enable_on_of">
+														<input type="checkbox" id="afycx_enable_fake" <% nvram_match_x("", "afycx_enable", "1", "value=1 checked"); %><% nvram_match_x("", "afycx_enable", "0", "value=0"); %>  />
+													</div>
+												</div>
+												<div style="position: absolute; margin-left: -10000px;">
+													<input type="radio" value="1" name="afycx_enable" id="afycx_enable_1" class="input" value="1" <% nvram_match_x("", "afycx_enable", "1", "checked"); %> /><#checkbox_Yes#>
+													<input type="radio" value="0" name="afycx_enable" id="afycx_enable_0" class="input" value="0" <% nvram_match_x("", "afycx_enable", "0", "checked"); %> /><#checkbox_No#>
+												</div>
+												 需要打开启动
 											</td>
 										</tr>
+										<tr>
+										<th>手机商店搜巴法用APP可远程重起机器（设好应用后重起生效）</th>
+	
+
+										</tr>
+										<tr>	
+
+											<th>巴法云注册</th>
+				<td>
+				<input type="button" class="btn btn-success" value="巴法云注册" onclick="window.open('https://cloud.bemfa.com/web/user/index')" size="0">
+				<br>点击去巴法云注册一个帐号
+											</td>
+										</tr>
+										<tr>
+										<th>巴法云私钥</th>
+				<td>
+					<input type="text" class="input" name="zero_afykey" id="zero_afykey" style="width: 260px" value="<% nvram_get_x("","zero_afykey"); %>" />
+				</td>
+
+										</tr>
+										<tr>
+										<th>MQTT设备主题名（去官网新建如 kktv002 英文加00几 )</th>
+				<td>
+					<input type="text" class="input" name="zero_afynen" id="zero_afynen" style="width: 150px" value="<% nvram_get_x("","zero_afynen"); %>" />
+											</td>
+											</tr>
 									</table>
 <table width="100%" align="center" cellpadding="4" cellspacing="0" class="table">
 	<tr> <th colspan="4">下面是手动写入后台的IP地址，一般无需填入</th></tr>
