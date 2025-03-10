@@ -1247,6 +1247,7 @@
 			{"wireguard_naen", "", NULL, EVM_RESTART_WIREGUARD},
 			{"wireguard_inip", "", NULL, EVM_RESTART_WIREGUARD},
 			{"wireguard_outip", "", NULL, EVM_RESTART_WIREGUARD},
+			{"wireguard_outip", "", NULL, EVM_RESTART_WIREGUARD},
 			{"wireguard_wan", "", NULL, EVM_RESTART_WIREGUARD},
 			{"wireguard_urtg", "", NULL, EVM_RESTART_WIREGUARD},
 			{"scripts.wireguard.conf", "File", "", NULL, EVM_RESTART_WIREGUARD},
