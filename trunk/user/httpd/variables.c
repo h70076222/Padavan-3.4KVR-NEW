@@ -1247,8 +1247,11 @@
 			{"wireguard_naen", "", NULL, EVM_RESTART_WIREGUARD},
 			{"wireguard_inip", "", NULL, EVM_RESTART_WIREGUARD},
 			{"wireguard_outip", "", NULL, EVM_RESTART_WIREGUARD},
-			{"wireguard_ttre", "", NULL, EVM_RESTART_WIREGUARD},
+			{"wireguard_wan", "", NULL, EVM_RESTART_WIREGUARD},
 			{"wireguard_urtg", "", NULL, EVM_RESTART_WIREGUARD},
+			{"scripts.wireguard.conf", "File", "", NULL, EVM_RESTART_WIREGUARD},
+			{"wireguard_routenum_x", "", NULL, EVM_RESTART_WIREGUARD},
+			{"WIREGUARDroute", "Group", ARGV((char*)variables_WIREGUARD_WIREGUARDroute, "8", "55", "wireguard_routenum_x"), EVM_RESTART_WIREGUARD},
 			{0,0,0,0}
 	};
 #endif
