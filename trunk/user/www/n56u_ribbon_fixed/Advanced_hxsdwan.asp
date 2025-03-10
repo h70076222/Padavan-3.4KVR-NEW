@@ -23,17 +23,18 @@
 <script type="text/javascript" src="/help.js"></script>
 <script>
 var $j = jQuery.noConflict();
+<% wireguard_status(); %>
 <% login_state_hook(); %>
 $j(document).ready(function() {
 	
 	init_itoggle('wireguard_enable');
-	init_itoggle('hxsdwan_log');
-	init_itoggle('hxsdwan_proxy');
-	init_itoggle('hxsdwan_wg');
-	init_itoggle('hxsdwan_first');
-	init_itoggle('hxsdwan_finger');
-	init_itoggle('hxsdwan_serverw');
-	$j("#tab_hxsdwan_cfg, #tab_hxsdwan_pri, #tab_hxsdwan_sta, #tab_hxsdwan_log, #tab_hxsdwan_help").click(
+	init_itoggle('wireguard_log');
+	init_itoggle('wireguard_proxy');
+	init_itoggle('wireguard_wg');
+	init_itoggle('wireguard_first');
+	init_itoggle('wireguard_finger');
+	init_itoggle('wireguard_serverw');
+	$j("#tab_wireguard_cfg, #tab_wireguard_pri, #tab_wireguard_sta, #tab_wireguard_log, #tab_wireguard_help").click(
 	function () {
 		var newHash = $j(this).attr('href').toLowerCase();
 		showTab(newHash);
@@ -46,14 +47,32 @@ $j(document).ready(function() {
 </script>
 <script>
 
+var m_routelist = [<% get_nvram_list("WIREGUARD", "WIREGUARDroute"); %>];
+var mroutelist_ifield = 4;
+if(m_routelist.length > 0){
+	var m_routelist_ifield = m_routelist[0].length;
+	for (var i = 0; i < m_routelist.length; i++) {
+		m_routelist[i][mroutelist_ifield] = i;
+	}
+}
+
+var m_mapplist = [<% get_nvram_list("WIREGUARD", "WIREGUARDmapp"); %>];
+var mmapplist_ifield = 5;
+if(m_mapplist.length > 0){
+	var m_mapplist_ifield = m_mapplist[0].length;
+	for (var i = 0; i < m_mapplist.length; i++) {
+		m_mapplist[i][mmapplist_ifield] = i;
+	}
+}
+
 function initial(){
 	show_banner(2);
 	show_menu(5,17,0);
 	showmenu();
 	show_footer();
-	fill_status(hxsdwan_status());
+	fill_status(wireguard_status());
 	change_wireguard_enable(1);
-	change_hxsdwan_model(1);
+	change_wireguard_model(1);
 	if (!login_safe())
         		textarea_scripts_enabled(0);
 }
@@ -62,27 +81,28 @@ function showmenu(){
 	showhide_div('dtolink', found_app_ddnsto());
 	showhide_div('zelink', found_app_zerotier());
 }
+
 function fill_status(status_code){
 	var stext = "Unknown";
 	if (status_code == 0)
 		stext = "<#Stopped#>";
 	else if (status_code == 1)
 		stext = "<#Running#>";
-	$("hxsdwan_status").innerHTML = '<span class="label label-' + (status_code != 0 ? 'success' : 'warning') + '">' + stext + '</span>';
+	$("wireguard_status").innerHTML = '<span class="label label-' + (status_code != 0 ? 'success' : 'warning') + '">' + stext + '</span>';
 }
 
 var arrHashes = ["cfg","pri","sta","log","help"];
 function showTab(curHash) {
-	var obj = $('tab_hxsdwan_' + curHash.slice(1));
+	var obj = $('tab_wireguard_' + curHash.slice(1));
 	if (obj == null || obj.style.display == 'none')
 	curHash = '#cfg';
 	for (var i = 0; i < arrHashes.length; i++) {
 		if (curHash == ('#' + arrHashes[i])) {
-			$j('#tab_hxsdwan_' + arrHashes[i]).parents('li').addClass('active');
-			$j('#wnd_hxsdwan_' + arrHashes[i]).show();
+			$j('#tab_wireguard_' + arrHashes[i]).parents('li').addClass('active');
+			$j('#wnd_wireguard_' + arrHashes[i]).show();
 		} else {
-			$j('#wnd_hxsdwan_' + arrHashes[i]).hide();
-			$j('#tab_hxsdwan_' + arrHashes[i]).parents('li').removeClass('active');
+			$j('#wnd_wireguard_' + arrHashes[i]).hide();
+			$j('#tab_wireguard_' + arrHashes[i]).parents('li').removeClass('active');
 			}
 		}
 	window.location.hash = curHash;
@@ -106,11 +126,59 @@ function textarea_scripts_enabled(v){
     	inputCtrl(document.form['scripts.wireguard.conf'], v);
 }
 
-function button_hxsdwan_info(){
+
+function button_restartwireguard() {
+    var m = document.form.hxsdwan_enable.value;
+
+    var actionMode = (m == "1" || m == "2") ? ' Restartvntcli ' : ' Updatevntcli ';
+
+    change_hxsdwan_enable(m); 
+
+    var $j = jQuery.noConflict(); 
+    $j.post('/apply.cgi', {
+        'action_mode': actionMode 
+    });
+}
+
+function markrouteRULES(o, c, b) {
+	document.form.group_id.value = "WIREGUARDroute";
+	if(b == " Add "){
+		if (document.form.wireguard_routenum_x_0.value >= c){
+			alert("<#JS_itemlimit1#> " + c + " <#JS_itemlimit2#>");
+			return false;
+		}else if (document.form.hxsdwan_route_x_0.value==""){
+			alert("<#JS_fieldblank#>");
+			document.form.wireguard_route_x_0.focus();
+			document.form.wireguard_route_x_0.select();
+			return false;
+		}else if(document.form.wireguard_ip_x_0.value==""){
+			alert("<#JS_fieldblank#>");
+			document.form.wireguard_ip_x_0.focus();
+			document.form.wireguard_ip_x_0.select();
+			return false;
+		}else{
+			for(i=0; i<m_routelist.length; i++){
+				if(document.form.wireguard_route_x_0.value==m_routelist[i][1]) {
+				if(document.form.wireguard_ip_x_0.value==m_routelist[i][2]) {
+					alert('<#JS_duplicate#>' + ' (' + m_routelist[i][1] + ')' );
+					document.form.wireguard_route_x_0.focus();
+					document.form.wireguard_ip_x_0.select();
+					return false;
+					}
+				}
+			}
+		}
+	}
+	pageChanged = 0;
+	document.form.action_mode.value = b;
+	return true;
+}
+
+function button_wireguard_info(){
 	var $j = jQuery.noConflict();
 	$j('#btn_info').attr('disabled', 'disabled');
 	$j.post('/apply.cgi', {
-		'action_mode': '/usr/bin/wireguard.sh vpninfo &',
+		'action_mode': ' CMDvpninfo ',
 		'next_host': 'Advanced_hxsdwan.asp#sta'
 	}).always(function() {
 		setTimeout(function() {
@@ -119,11 +187,11 @@ function button_hxsdwan_info(){
 	});
 }
 
-function button_hxsdwan_all(){
+function button_wireguard_all(){
 	var $j = jQuery.noConflict();
 	$j('#btn_all').attr('disabled', 'disabled');
 	$j.post('/apply.cgi', {
-		'action_mode': '/usr/bin/wireguard.sh vpnall &',
+		'action_mode': ' CMDvpnall ',
 		'next_host': 'Advanced_hxsdwan.asp#sta'
 	}).always(function() {
 		setTimeout(function() {
@@ -132,7 +200,7 @@ function button_hxsdwan_all(){
 	});
 }
 
-function button_hxsdwan_list(){
+function button_wireguard_list(){
 	var $j = jQuery.noConflict();
 	$j('#btn_list').attr('disabled', 'disabled');
 	$j.post('/apply.cgi', {
@@ -145,7 +213,7 @@ function button_hxsdwan_list(){
 	});
 }
 
-function button_hxsdwan_route(){
+function button_wireguard_route(){
 	var $j = jQuery.noConflict();
 	$j('#btn_route').attr('disabled', 'disabled');
 	$j.post('/apply.cgi', {
@@ -158,7 +226,7 @@ function button_hxsdwan_route(){
 	});
 }
 
-function button_hxsdwan_status() {
+function button_wireguard_status() {
 	var $j = jQuery.noConflict();
 	$j('#btn_status').attr('disabled', 'disabled');
 	$j.post('/apply.cgi', {
@@ -234,7 +302,7 @@ function button_hxsdwan_status() {
 								<li class="active">
 								    <a href="Advanced_hxsdwan.asp"><#menu5_35_1#></a>
 								</li>
-								   <li><a id="tab_hxsdwan_sta" href="#sta">运行状态</a></li>
+								   <li><a id="tab_wireguard_sta" href="#sta">运行状态</a></li>
 								</li>
 							    </ul>
 							</div>
@@ -311,7 +379,7 @@ function button_hxsdwan_status() {
 </table>
 </div>
 	<!-- 状态 -->
-	<div id="wnd_hxsdwan_sta" style="display:none">
+	<div id="wnd_wireguard_sta" style="display:none">
 	<table width="100%" cellpadding="4" cellspacing="0" class="table">
 	<tr>
 		<td colspan="3" style="border-top: 0 none; padding-bottom: 0px;">
@@ -321,11 +389,11 @@ function button_hxsdwan_status() {
 	<tr>
 		<td colspan="5" style="border-top: 0 none; text-align: center;">
 			<!-- 按钮并排显示 -->
-			<input class="btn btn-success" id="btn_info" style="width:100px; margin-right: 10px;" type="button" name="hxsdwan_info" value="本机设备信息" onclick="button_hxsdwan_info()" />
-			<input class="btn btn-success" id="btn_all" style="width:100px; margin-right: 10px;" type="button" name="hxsdwan_all" value="所有设备信息" onclick="button_hxsdwan_all()" />
-			<input class="btn btn-success" id="btn_list" style="width:100px; margin-right: 10px;" type="button" name="hxsdwan_list" value="所有设备列表" onclick="button_hxsdwan_list()" />
-			<input class="btn btn-success" id="btn_route" style="width:100px; margin-right: 10px;" type="button" name="hxsdwan_route" value="路由转发信息" onclick="button_hxsdwan_route()" />
-			<input class="btn btn-success" id="btn_status" style="width:100px; margin-right: 10px;" type="button" name="hxsdwan_status" value="运行状态信息" onclick="button_hxsdwan_status()" />
+			<input class="btn btn-success" id="btn_info" style="width:100px; margin-right: 10px;" type="button" name="wireguard_info" value="本机设备信息" onclick="button_wireguard_info()" />
+			<input class="btn btn-success" id="btn_all" style="width:100px; margin-right: 10px;" type="button" name="wireguard_all" value="所有设备信息" onclick="button_wireguard_all()" />
+			<input class="btn btn-success" id="btn_list" style="width:100px; margin-right: 10px;" type="button" name="wireguard_list" value="所有设备列表" onclick="button_wireguard_list()" />
+			<input class="btn btn-success" id="btn_route" style="width:100px; margin-right: 10px;" type="button" name="wireguard_route" value="路由转发信息" onclick="button_wireguard_route()" />
+			<input class="btn btn-success" id="btn_status" style="width:100px; margin-right: 10px;" type="button" name="wireguard_status" value="运行状态信息" onclick="button_wireguard_status()" />
 		</td>
 	</tr>
 	<tr>
