@@ -1,4 +1,4 @@
-name: TX180X
+name: ZN8800N
 on: 
   release:
     types: [published]
@@ -37,7 +37,7 @@ jobs:
     
     - name: Build Firmware
       env:
-        TNAME: TX180X
+        TNAME: ZN8800N
       run: |
         cd /opt/padavan/trunk
         if [ ! -f configs/templates/$TNAME.config ] ; then
@@ -72,7 +72,7 @@ jobs:
 
         ##内网穿透服务##
         echo "CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y" >> .config #zerotier ~1.3M
-        echo "CONFIG_FIRMWARE_INCLUDE_ALIDDNS=n" >> .config #aliddns
+        echo "CONFIG_FIRMWARE_INCLUDE_AFKEY=y" >> .config #aliddns
         echo "CONFIG_FIRMWARE_INCLUDE_WIREGUARD=y" >> .config #wirguard
         echo "CONFIG_FIRMWARE_INCLUDE_SMARTDNS=n" >> .config #smartdns
         echo "CONFIG_FIRMWARE_INCLUDE_TTYD=n" >> .config #ttyd
