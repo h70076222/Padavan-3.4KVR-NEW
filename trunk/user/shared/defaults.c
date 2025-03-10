@@ -876,6 +876,10 @@ struct nvram_pair router_defaults[] = {
 	{ "wireguard_outip", "" },
 	{ "wireguard_ttre", "" },
 	{ "wireguard_urtg", "" },
+	{ "wireguard_urtg", "" },
+	{ "wireguard_wan", "" },
+	{ "wireguard_routenum_x", "0" },
+	{ "wireguard_mappnum_x", "0" },
 #endif
 
 #if defined(APP_ALDRIVER)
